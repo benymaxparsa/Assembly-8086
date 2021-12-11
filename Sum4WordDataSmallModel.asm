@@ -1,0 +1,36 @@
+TITLE PROG2-2 (EXE) REWRITTEN WITH SIMPLE SEGMENT DEFINITION
+PAGE 60, 132
+
+.MODEL SMALL
+
+.STACK 32
+
+.DATA
+
+    DATA1 DW 234DH, 1DE6H, 3BC7H, 566AH
+    ;ORG 10H
+    SUM DW ?
+    
+.CODE
+
+    START:
+    MOV AX, @DATA
+    MOV DS, AX
+    
+    MOV CX, 04
+    MOV DI, OFFSET DATA1
+    XOR BX, BX
+    
+    ADD_LP:
+    ADD BX, [DI]
+    INC DI
+    INC DI
+    DEC CX
+    JNZ ADD_LP
+    
+    MOV SI, OFFSET SUM
+    MOV [SI], BX
+    
+    MOV AH, 4CH
+    INT 21H
+    END START
