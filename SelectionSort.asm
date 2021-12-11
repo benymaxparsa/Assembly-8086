@@ -1,33 +1,61 @@
-; multi-segment executable file template.
 
-data segment
-    ; add your data here!
-    pkey db "press any key...$"
-ends
+; Selection Sort
+; Parsa KamaliPour - 97149081
 
-stack segment
-    dw   128  dup(0)
-ends
+.MODEL SMALL
 
-code segment
-start:
-; set segment registers:
-    mov ax, data
-    mov ds, ax
-    mov es, ax
+.STACK 128
 
-    ; add your code here
-            
-    lea dx, pkey
-    mov ah, 9
-    int 21h        ; output string at ds:dx
+.DATA
+ 
+    ARRAY DB 1H, 5H, 4H, 8H, 7H, 9H, 2H, 3H, 6H, 0H 
+
+.CODE  
     
-    ; wait for any key....    
-    mov ah, 1
-    int 21h
-    
-    mov ax, 4c00h ; exit to operating system.
-    int 21h    
-ends
+    MAIN:
+        MOV AX, @DATA
+        MOV DS, AX
 
-end start ; set entry point and stop the assembler.
+        LEA DI, ARRAY ; POINTER TO THE ARRAY (LAST SORTED INDEX)
+        MOV SI, DI    ; MOVING POINTER
+        MOV CL, 10    ; CL KEEPS SIZE OF THE ARRAY
+        XOR CH, CH    ; CLEAR CH
+        DEC CL        ; 9 REMAINING ELEMENT TO CHECK
+    
+    L1:
+ 
+        MOV BX, SI    ; KEEP THE SMALLEST INDEX
+        MOV AH, CL    ; KEED THE REMAINING ELEMENT SIZE
+        INC AH        ; SET THE COUNTER
+        MOV AL, [SI]  ; VALUE OF CURRENT ELEMENT
+        INC SI        ; POINT TO NEXT ELEMENT
+        DEC AH        ; COUNTER - 1
+        
+    L2:
+    
+        CMP AL, [SI]  ; COMPARE NEXT INDEX VALUE TO PREVIOUS
+        JC SKIP       ; IF BIGGER OR EQUAL SKIP THE NUMBER
+        MOV AL, [SI]  ; UPDATE THE CURRENT INDEX VALUE
+        MOV BX, SI    ; UPDATE THE SMALEST INDEX
+  
+    
+    SKIP: 
+                   
+        INC SI        ; GO TO THE NEXT INDEX
+        DEC AH        ; COUNTER - 1
+        JNZ L2        ; AS LONG AS COUNTER IS NOT 0 JUMP TO L2 (GO FORWARD)
+        MOV DL, [BX]  ; LOAD MINIMUM NUMBER TO REG
+        XCHG DL, [DI] ; REPLACE MINIMUM NUMBER WITH (LAST SORTED INDEX)+1
+        XCHG DL, [BX] ; SET THE FIRST UNSORTED INDEX AS MINIMUM NUMBER
+        INC DI        ; MOVE THE LAST SORTED POINTER FORWARD
+        MOV SI, DI    ; COPY THAT TO THE MOVING POINTER
+        LOOP L1       ; JUMP BACK TO L1
+        JMP EXIT      ; IF ARRAY ENDED FINISH THE PROGRAM         
+
+    
+    EXIT:
+    
+        MOV AX, 4C00H
+        INT 21H  
+
+    END MAIN
